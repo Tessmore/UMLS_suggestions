@@ -1,19 +1,22 @@
 ﻿var express = require('express');
 var engine = require('ejs-locals')
 
-var request    = require('request-json');
-var raw_client = request.newClient('http://localhost:9200/umls/');
+var port = 9000;
+var app  = express();
 
-
-var port   = 9000;
-var app    = express();
-
+// Official elasticsearch client
 var elasticsearch = require('elasticsearch');
 var client = new elasticsearch.Client({
   host: 'localhost:9200',
   log: 'trace'
 });
 
+// JSON request client, for extending the elasticsearch client.
+var request    = require('request-json');
+var raw_client = request.newClient('http://localhost:9200/umls/');
+
+
+// Express app configuration
 app.configure(function() {
   app.use(express.bodyParser());
 
@@ -28,7 +31,9 @@ app.configure(function() {
   app.set('view engine', 'ejs');
 });
 
-/**
+
+
+/*********************************************
     GET
 */
 
@@ -42,8 +47,39 @@ app.get(['/insert', '/new', '/create'], function(req, res) {
     res.render('create');
 });
 
+// Run this once to create the mapping
+app.get('/install', function(req, res) {
 
-/**
+    client.index({
+      index: 'umls',
+      type: 'diagnose',
+    },
+    function (err, es_res) {
+        client.indices.putMapping({
+            index: 'umls',
+            type: 'diagnose',
+            body: {
+                properties: {
+                    title        : { type: "string" },
+                    cui          : { type: "string" },
+                    alternatives : { type: "string" },
+                    alt_suggest  : {
+                        type            : "completion",
+                        index_analyzer  : "simple",
+                        search_analyzer : "simple",
+                        payloads        : false
+                    }
+                }
+            }
+        },
+        function (err, es_res) {
+            res.json(es_res);
+        });
+    });
+});
+
+
+/*********************************************
     POST
 */
 
@@ -81,7 +117,8 @@ app.post('/insert', function(req, res) {
             title   : req.body.title,
             suggest : alternatives,
             alt_suggest : {
-                input: alternatives
+                input  : alternatives,
+                output : req.body.cui + " : " + req.body.title
             }
         }
     };
@@ -94,36 +131,6 @@ app.post('/insert', function(req, res) {
     });
 });
 
-// Run this once to create the mapping
-app.get('/install', function(req, res) {
-
-    client.index({
-      index: 'umls',
-      type: 'diagnose',
-    },
-    function (err, es_res) {
-        client.indices.putMapping({
-            index: 'umls',
-            type: 'diagnose',
-            body: {
-                properties: {
-                    title        : { type: "string" },
-                    cui          : { type: "string" },
-                    alternatives : { type: "string" },
-                    alt_suggest  : {
-                        type            : "completion",
-                        index_analyzer  : "simple",
-                        search_analyzer : "simple",
-                        payloads        : false
-                    }
-                }
-            }
-        },
-        function (err, es_res) {
-            res.json(es_res);
-        });
-    });
-});
 
 app.listen(port);
 console.log("Server running at port: " + port)
