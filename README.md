@@ -1,15 +1,14 @@
 UMLS suggestions
 =========
 
-A compact search engine to suggest (preferred) UMLS terms
+A compact search engine to suggest (preferred) UMLS terms.
 
 ## Usage
 
-If you have elasticsearch, node and npm installed you can use (assuming elasticsearch runs on localhost:9200).
+If you have elasticsearch, node and npm installed you can use `npm start` (assuming elasticsearch runs on localhost:9200). There is now an app on `localhost:9000`. Since it is only a prototype there are no security settings. To setup your "database" goto: `localhost:9000/install`. This will create an empty index for new records.
 
-`npm start`
+After installing you can insert UMLS records. Enter the CUI + preferred title and alternatives. The alternatives can contain multiple entries seperated by ` | `.
 
-There is now an app on `localhost:9000`. Since it is only a prototype there are no security settings. To setup your "database" goto: `localhost:9000/install`. This will create an empty index for new records.
 
 ### API
 
