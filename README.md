@@ -3,6 +3,16 @@ UMLS suggestions
 
 A compact search engine to suggest (preferred) UMLS terms.
 
+## Installation
+
+This is a small nodeJS and elasticsearch project.
+
+* Download UMLS : http://www.nlm.nih.gov/research/umls/
+* Run the load scripts to get the UMLS records in database
+* Add index keys to the mrconso and mrsty database (on CUI)
+* `npm install` to get the node modules.
+
+
 ## Usage
 
 If you have elasticsearch, node and npm installed you can use `npm start` (assuming elasticsearch runs on localhost:9200). There is now an app on `localhost:9000`. Since it is only a prototype there are no security settings. To setup your "database" goto: `localhost:9000/install`. This will create an empty index for new records.
@@ -21,14 +31,6 @@ After installing you can insert UMLS records. Enter the CUI + preferred title an
 | /search | POST      |  Search for suggestions based on given `query` parameter. Returns a list of possible outcomes  |
 | /install | GET      |  Create the index and mapping for elasticsearch  |
 
-## Dependencies
-
-This is a small nodeJS and elasticsearch project. Make sure you `npm install` to get the correct modules:
-
-* elasticsearch
-* ejs
-* express
-* request-json
 
 ## Info
 

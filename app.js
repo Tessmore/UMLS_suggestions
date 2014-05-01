@@ -1,19 +1,6 @@
-﻿var express = require('express');
-var engine = require('ejs-locals')
-
-var port = 9000;
-var app  = express();
-
-// Official elasticsearch client
-var elasticsearch = require('elasticsearch');
-var client = new elasticsearch.Client({
-  host: 'localhost:9200',
-  log: 'trace'
-});
-
-// JSON request client, for extending the elasticsearch client.
-var request    = require('request-json');
-var raw_client = request.newClient('http://localhost:9200/umls/');
+﻿var config  = require('./json/config.json');
+var express = require('express');
+var app     = express();
 
 
 // Express app configuration
@@ -26,111 +13,24 @@ app.configure(function() {
 
   app.use(express.static(__dirname + '/static'));
 
-  app.engine('ejs', engine);
+  app.engine('ejs', require('ejs-locals'));
   app.set('views', __dirname + '/views');
   app.set('view engine', 'ejs');
 });
 
-
-
-/*********************************************
-    GET
-*/
 
 // Search form
 app.get(['/', '/search'], function(req, res) {
     res.render('index');
 });
 
-// Insert new document
-app.get(['/insert', '/new', '/create'], function(req, res) {
-    res.render('create');
-});
-
 // Run this once to create the mapping
-app.get('/install', function(req, res) {
+app.get('/install', require('./src/install').install);
 
-    client.index({
-      index: 'umls',
-      type: 'diagnose',
-    },
-    function (err, es_res) {
-        client.indices.putMapping({
-            index: 'umls',
-            type: 'diagnose',
-            body: {
-                properties: {
-                    title        : { type: "string" },
-                    cui          : { type: "string" },
-                    alternatives : { type: "string" },
-                    alt_suggest  : {
-                        type            : "completion",
-                        index_analyzer  : "simple",
-                        search_analyzer : "simple",
-                        payloads        : false
-                    }
-                }
-            }
-        },
-        function (err, es_res) {
-            res.json(es_res);
-        });
-    });
-});
+// Return "suggestion" results
+// app.post('/search', require('./src/search').search);
+app.post('/autocomplete', require('./src/autocomplete').autocomplete);
 
 
-/*********************************************
-    POST
-*/
-
-// Return search results
-app.post('/search', function(req, res) {
-
-    var data = {
-        "result" : {
-            "text" : req.body.query,
-            "completion" : {
-                "field" : "alt_suggest",
-                "fuzzy" : {
-                    "edit_distance" : 1
-                }
-            }
-        }
-    };
-
-    raw_client.post('_suggest/', data, function(err, raw_res, body) {
-        if (body && body.result && body.result[0].options && body.result[0].options.length > 0)
-            res.json(body.result[0].options);
-
-        res.json([]);
-    });
-});
-
-app.post('/insert', function(req, res) {
-    var alternatives = (req.body.title + " | " + req.body.alternatives).split(" | ");
-
-    var args = {
-        index : 'umls',
-        type  : 'diagnose',
-        body  : {
-            cui     : req.body.cui,
-            title   : req.body.title,
-            suggest : alternatives,
-            alt_suggest : {
-                input  : alternatives,
-                output : req.body.cui + " : " + req.body.title
-            }
-        }
-    };
-
-    client.create(args, function(err, es_res) {
-        if (err)
-            console.log(err);
-
-        res.json(es_res);
-    });
-});
-
-
-app.listen(port);
-console.log("Server running at port: " + port)
+app.listen(config.port);
+console.log("Server running at port: " + config.port)

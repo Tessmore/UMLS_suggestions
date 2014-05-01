@@ -1,0 +1,40 @@
+﻿{
+    "settings": {
+        "analysis": {
+            "analyzer": {
+                "my_analyzer": {
+                    "type": "custom",
+                    "tokenizer": "standard",
+                    "filter": [
+                        "standard",
+                        "lowercase",
+                        "asciifolding"
+                    ]
+                }
+            }
+        }
+    },
+    "mappings": {
+        "diagnose": {
+            "properties": {
+                "cui": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "completion",
+                    "index_analyzer": "my_analyzer",
+                    "search_analyzer": "my_analyzer"
+                },
+                "keywords": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "lang": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
