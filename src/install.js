@@ -89,7 +89,7 @@ function insert_diagnoses(mrsty) {
             }
 
             if (test['false'] && test['false'].length > 0) {
-                record = test['false'];
+                records = test['false'];
             }
 
             args.body.title = {
@@ -118,9 +118,20 @@ function filter_conso_records(records) {
 }
 
 
+function length_difference(a, b) {
+    return Math.abs(a.length - b.length);
+}
+
+function compare_prefix(a, b) {
+    return a.substring(0, 3) === b.substring(0, 3);
+}
+
 function group_conso(input) {
-    if (Math.abs(current.str.length - input.str.length) < 4)
-        return ld.computeDistance(current.str, input.str) < 4;
+    var same_prefix = compare_prefix(current.str, input.str);
+    var length_diff = length_difference(current.str, input.str);
+
+    if (same_prefix && length_diff < 4)
+        return ld.computeDistance(current.str, input.str) < 5;
 
     return false;
 }
@@ -140,7 +151,7 @@ function keyword_reduce(list, item) {
 
 // Removes entries that have [Disease/finding] etc.
 function filter_conso(input) {
-    return input.str.length > 6       && // Entries should be long enough
+    return input.str.length > 5       && // Entries should be long enough
             !/\d/.test(input.str)     && // Have no numbers
            input.str.indexOf('(') < 0 && // Not contain ( ) or []
            input.str.indexOf('[') < 0;

@@ -5,10 +5,16 @@
     var results = $('#suggestions');
 
     function add_suggestion(entry) {
-        results.append("<li>" + entry.str );
+        results.append("<li>" + entry.str + entry.cui );
     }
 
-    function get_suggestions() {
+    function get_suggestions(event) {
+
+        // Ignore non usefull keys
+        // Allow backspace
+        if (event.keyCode != 8 && (event.keyCode < 48 || event.keyCode > 91))
+            return false;
+
         var value = query.val();
 
         if (value.length < 2) {

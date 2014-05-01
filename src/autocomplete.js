@@ -15,8 +15,8 @@ exports.autocomplete = function autocomplete(req, res) {
                 "size"  : 100,
                 "field" : "title",
                 "fuzzy" : {
-                    "min_length"    : 4,
-                    "prefix_length" : 3
+                    "min_length"    : 3,
+                    "prefix_length" : 5
                 }
             }
         }
@@ -29,6 +29,7 @@ exports.autocomplete = function autocomplete(req, res) {
 
         if (body && body.result && body.result[0].options && body.result[0].options.length > 0) {
             results = _.map(body.result[0].options, convert_output);
+            results = _.uniq(results, false, function(item) { return item.cui; });
         }
 
         res.json(results);
