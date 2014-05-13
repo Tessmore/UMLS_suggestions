@@ -2,13 +2,18 @@
 
     var form  = $(".search");
     var query = $('.search input[name="query"]');
-    var results = $('#suggestions');
+    var autocomplete_holder = $('#autocomplete');
+    var suggestions_holder = $('#suggestions');
 
-    function add_suggestion(entry) {
-        results.append("<li>" + entry.str + entry.cui );
+    function add_autocompletion(entry) {
+        autocomplete_holder.append("<li id='" + entry.cui + "'>" + entry.str );
     }
 
-    function get_suggestions(event) {
+    function add_suggestion(entry) {
+        suggestions_holder.append("<div id='" + entry.cui + "'>" + entry.str + "</div>");
+    }
+
+    function autocomplete(event) {
 
         // Ignore non usefull keys
         // Allow backspace
@@ -18,30 +23,43 @@
         var value = query.val();
 
         if (value.length < 2) {
-            results.slideUp(80).empty();
+            autocomplete_holder.slideUp(80).empty();
             return false;
         }
 
         $.post("/autocomplete", { query: value }, function(data) {
             // Clear results
-            results.empty();
+            autocomplete_holder.empty();
 
             if (data.length > 0) {
-                results.slideDown(80);
-                data.map(add_suggestion);
+                autocomplete_holder.slideDown(80);
+                data.map(add_autocompletion);
             }
             else {
-                results.slideUp(80);
+                autocomplete_holder.slideUp(80);
+            }
+        });
+    }
+
+    function suggest() {
+        var value = query.val();
+
+        $.post("/suggest", { query: value }, function(data) {
+            // Clear results
+            suggestions_holder.empty();
+
+            if (data.length > 0) {
+                data.map(add_suggestion);
             }
         });
     }
 
     // TODO throttle to rate limit
     // TODO only send new request if input changed
-    query.on("keyup", get_suggestions);
+    query.on("keyup", autocomplete);
 
     form.submit(function() {
-        // get_suggestions();
+        suggest();
         return false;
     });
 });

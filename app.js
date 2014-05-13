@@ -28,8 +28,8 @@ app.get(['/', '/search'], function(req, res) {
 app.get('/install', require('./src/install').install);
 
 // Return "suggestion" results
-// app.post('/search', require('./src/search').search);
 app.post('/autocomplete', require('./src/autocomplete').autocomplete);
+app.post('/suggest',      require('./src/suggest').suggest);
 
 
 app.listen(config.port);

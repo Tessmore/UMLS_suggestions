@@ -80,7 +80,7 @@ body {
     margin:20px 0;
 }
 
-.search input, .search #suggestions {
+.search input, .search #autocomplete {
     width:98%;
     padding:10px 7px;
     border:1px solid #222;
@@ -102,18 +102,18 @@ body {
     color:#fff;
 }
 
-.search #suggestions {
+.search #autocomplete {
     display:none;
     position:relative;
     top:60px;
 }
 
-#suggestions li {
+#autocomplete li {
     color:#444;
     margin-bottom:10px;
     font-size:1.2em;
 }
 
-#suggestions li:last-child {
+#autocomplete li:last-child {
     margin:0;
 }
