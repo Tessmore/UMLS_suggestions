@@ -80,9 +80,12 @@ body {
     margin:20px 0;
 }
 
-.search input, .search #autocomplete {
+.search input {
     width:98%;
     padding:10px 7px;
+}
+
+.search input, .search #autocomplete {
     border:1px solid #222;
 }
 
@@ -106,14 +109,44 @@ body {
     display:none;
     position:relative;
     top:60px;
+    width:99%;
 }
 
 #autocomplete li {
     color:#444;
-    margin-bottom:10px;
+    padding:7px;
     font-size:1.2em;
 }
 
 #autocomplete li:last-child {
     margin:0;
+}
+
+#autocomplete .active {
+    background:#eee;
+}
+
+.block {
+    float:left;
+    width:100%;
+}
+
+.block h3 {
+    font-size:1em;
+    font-weight:bold;
+    margin-bottom:10px;
+}
+
+.push-down {
+    margin-top:80px;
+}
+
+#suggestions {
+    padding:10px;
+    border:1px solid blue;
+}
+
+#suggestions div {
+    font-size:1.3em;
+    padding:8px 0;
 }
