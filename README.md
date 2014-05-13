@@ -10,6 +10,8 @@ This is a small nodeJS and elasticsearch project.
 * Download UMLS : http://www.nlm.nih.gov/research/umls/
 * Run the load scripts to get the UMLS records in database
 * Add index keys to the mrconso and mrsty database (on CUI)
+** `ALTER TABLE mrconso ADD INDEX(CUI);`
+** `ALTER TABLE mrsty ADD INDEX(CUI);`
 * `npm install` to get the node modules.
 
 
