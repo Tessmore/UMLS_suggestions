@@ -1,0 +1,20 @@
+﻿{
+    "port": 9000,
+    "umls_db": {
+        "host": "localhost",
+        "user": "root",
+        "password": "",
+        "database": "umls"
+    },
+
+    "umls_include" : [
+        "Virus",
+        "Disease or Syndrome"
+    ],
+
+    "elastic_db": {
+        "host": "http://localhost:9200",
+        "name": "umls",
+        "table": "diagnose"
+    }
+}
