@@ -13,6 +13,7 @@ This is a small nodeJS and elasticsearch project.
     * `ALTER TABLE mrconso ADD INDEX(CUI);`
     * `ALTER TABLE mrsty ADD INDEX(CUI);`
 * `npm install` to get the node modules.
+* `cp json/example_config.json json/config.json` to create a local config file. Edit this to the correct database settings.
 
 
 ## Usage
