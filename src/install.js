@@ -56,7 +56,9 @@ function insert_diagnoses(mrsty) {
 
     var cui   = mrsty.cui;
     var type  = mrsty.sty;
-    var query = "SELECT str,lat FROM `mrconso` WHERE cui='" + cui + "' AND ISPREF='Y' AND STT='PF' AND SUPPRESS='N' AND CHAR_LENGTH(str) < 30";
+
+    var inc   = config.umls_languages.join("','");
+    var query = "SELECT str,lat FROM `mrconso` WHERE cui='" + cui + "' AND lat IN ('" + inc + "') AND ISPREF='Y' AND STT='PF' AND SUPPRESS='N' AND CHAR_LENGTH(str) < 30";
 
     var args =  {
         index : config.elastic_db.name,

@@ -24,6 +24,13 @@ app.get(['/', '/search'], function(req, res) {
     res.render('index');
 });
 
+app.all('*', function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
+  res.header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type");
+  next();
+});
+
 // Run this once to create the mapping
 app.get('/install', require('./src/install').install);
 
