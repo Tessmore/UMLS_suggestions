@@ -1,8 +1,9 @@
 ﻿var config = require('../json/config.json');
 var _      = require('underscore');
+var rjson  = require('request-json');
 
 // JSON request client, for extending the elasticsearch client.
-var elastic_raw_client = require('request-json').newClient(config.elastic_db.host + "/" + config.elastic_db.name);
+var elastic_raw_client = rjson.newClient(config.elastic_db.host + "/" + config.elastic_db.name);
 
 exports.suggest = function suggest(req, res) {
     var results = [];
@@ -18,8 +19,9 @@ exports.suggest = function suggest(req, res) {
     };
 
     elastic_raw_client.post('_search/', lookup, function(err, raw_res, body) {
-        if (err) {
-            console.log(err);
+        if (err && err.code === "ECONNREFUSED") {
+            console.log("Please start Elasticsearch database");
+            process.exit(1);
         }
 
         if (body && body.hits.hits.length > 0) {

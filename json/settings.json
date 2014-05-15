@@ -15,7 +15,7 @@
         }
     },
     "mappings": {
-        "diagnose": {
+        "table": {
             "properties": {
                 "cui": {
                     "type": "string"

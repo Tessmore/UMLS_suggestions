@@ -7,31 +7,36 @@ var utf8    = require('utf8');
 var _       = require('underscore');
 var asciifolding = require('diacritics').remove;
 
+var rjson  = require('request-json');
+
 // Official elasticsearch client
 var elastic = new require('elasticsearch').Client({
-  host: config.elastic_db.host
+    host: config.elastic_db.host
 });
-
-// JSON request client, for extending the elasticsearch client.
-var elastic_raw_client = require('request-json').newClient(config.elastic_db.host + "/" + config.elastic_db.name);
 
 // MySQL client
 var umls = require('mysql').createConnection(config.umls_db);
 
+function create_query(inc) {
+    return "SELECT DISTINCT cui, sty FROM mrsty WHERE sty IN ('" + inc.join("','") + "')";
+}
 
-exports.install = function install(req, res) {
+// Insert UMLS records found by a query to Elasticsearch
+// @table : table
+// @query : Query to execute
+function execute_query(table, query) {
 
-    // TODO : return false if in production + ready
-
-    var inc   = config.umls_include.join("','");
-    var query = "SELECT DISTINCT cui, sty FROM mrsty WHERE sty IN ('" + inc + "')";
+    // Connect database
+    var raw_client = rjson.newClient(config.elastic_db.host + "/" + table);
 
     // Sends json request to create initial mapping and settings
-    elastic_raw_client.post('', settings, function(err, raw_res, body) {
+    raw_client.post("", settings, function(err, raw_res, body) {
         console.log("Starting");
 
-        if (err)
-            console.log(err);
+        if (err && err.code === "ECONNREFUSED") {
+            console.log("Please start Elasticsearch database");
+            process.exit(1);
+        }
 
         // If database and mappings are created
         umls.query(query, function(err, type) {
@@ -40,19 +45,24 @@ exports.install = function install(req, res) {
 
             console.log("Found: " + type.length + " UMLS records.");
 
-            async.each(type, insert_diagnoses, function(err) {
+            async.each(type, _insert, function(err) {
                 if (err)
                     console.log(err);
             });
         });
-
-        res.json("Done");
     });
+}
+
+exports.install = function install(req, res) {
+    execute_query(config.elastic_db.diagnose_table, create_query(config.umls_diagnose));
+    //execute_query(config.elastic_db.medicine_table, create_query(config.umls_medicine));
+
+    res.json("Done");
 };
 
 /** Helper functions *************/
 
-function insert_diagnoses(mrsty) {
+function _insert(mrsty) {
 
     var cui   = mrsty.cui;
     var type  = mrsty.sty;
@@ -60,9 +70,12 @@ function insert_diagnoses(mrsty) {
     var inc   = config.umls_languages.join("','");
     var query = "SELECT str,lat FROM `mrconso` WHERE cui='" + cui + "' AND lat IN ('" + inc + "') AND ISPREF='Y' AND STT='PF' AND SUPPRESS='N' AND CHAR_LENGTH(str) < 30";
 
+    // Since it is async, we need to check for the table to insert
+    var table = config.umls_medicine.indexOf(type) > -1 ? config.elastic_db.medicine_table : config.elastic_db.diagnose_table;
+
     var args =  {
-        index : config.elastic_db.name,
-        type  : config.elastic_db.table,
+        index : table,
+        type  : "table",
         body  : {
             cui   : cui,
             type  : type,

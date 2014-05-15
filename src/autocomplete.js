@@ -1,13 +1,20 @@
 ﻿var config = require('../json/config.json');
 var _      = require('underscore');
+var rjson  = require('request-json');
 
-// JSON request client, for extending the elasticsearch client.
-var elastic_raw_client = require('request-json').newClient(config.elastic_db.host + "/" + config.elastic_db.name);
+var client = rjson.newClient(config.elastic_db.host + "/");
 
 exports.autocomplete = function autocomplete(req, res) {
     var results = [];
     var query   = req.body.query;
 
+    var type = config.elastic_db.diagnose_table;
+
+    // Set the correct type
+    if (req.body.type === "medicine")
+        type = config.elastic_db.medicine_table;
+
+    // You cannot filter a completion search in Elasticsearch
     var lookup = {
         "result" : {
             "text" : query,
@@ -22,9 +29,10 @@ exports.autocomplete = function autocomplete(req, res) {
         }
     };
 
-    elastic_raw_client.post('_suggest/', lookup, function(err, raw_res, body) {
-        if (err) {
-            console.log(err);
+    client.post(type + "/_suggest", lookup, function(err, raw_res, body) {
+        if (err && err.code === "ECONNREFUSED") {
+            console.log("Please start Elasticsearch database");
+            process.exit(1);
         }
 
         if (body && body.result && body.result[0].options && body.result[0].options.length > 0) {
@@ -35,7 +43,6 @@ exports.autocomplete = function autocomplete(req, res) {
         res.json(results);
     });
 };
-
 
 function convert_output(result) {
     result = result.text.split(' | ');

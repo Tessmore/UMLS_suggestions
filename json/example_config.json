@@ -7,7 +7,7 @@
         "database": "umls"
     },
 
-    "umls_include" : [
+    "umls_diagnose" : [
         "Pathologic Function",
         "Disease or Syndrome",
         "Mental or Behavioral Dysfunction",
@@ -17,6 +17,10 @@
         "Injury or Poisoning"
     ],
 
+    "umls_medicine" : [
+        "Clinical Drug"
+    ],
+
     "umls_languages" : [
         "ENG"
     ],
@@ -24,6 +28,7 @@
     "elastic_db": {
         "host": "http://localhost:9200",
         "name": "umls",
-        "table": "diagnose"
+        "diagnose_table": "diagnose",
+        "medicine_table": "medicine"
     }
 }

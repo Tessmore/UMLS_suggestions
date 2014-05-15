@@ -36,7 +36,9 @@ app.get('/install', require('./src/install').install);
 
 // Return "suggestion" results
 app.post('/autocomplete', require('./src/autocomplete').autocomplete);
-app.post('/suggest',      require('./src/suggest').suggest);
+
+// TODO
+//app.post('/suggest',      require('./src/suggest').suggest);
 
 
 app.listen(config.port);
