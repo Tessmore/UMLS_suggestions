@@ -117,20 +117,6 @@
         });
     }
 
-    function suggest() {
-        var value = query.val();
-
-        $.post("/suggest", { query: value }, function(data) {
-            // Clear results
-            suggestions_holder.empty();
-            autocomplete_holder.slideUp(80);
-
-            if (data.length > 0) {
-                data.map(add_suggestion);
-            }
-        });
-    }
-
     // TODO throttle to rate limit
     // TODO only send new request if input changed
     query.on("keyup", autocomplete);

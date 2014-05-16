@@ -36,8 +36,12 @@ exports.autocomplete = function autocomplete(req, res) {
         }
 
         if (body && body.result && body.result[0].options && body.result[0].options.length > 0) {
-            results = _.map(body.result[0].options, convert_output);
-            results = _.uniq(results, false, function(item) { return item.cui; });
+            results = body.result[0].options;
+            results = _.map(results, convert_output);
+
+            results = results.sort(function(a, b){ return a.str.length - b.str.length; });
+            results = _.uniq(results, true, function(item) { return item.cui; });
+            results = _.uniq(results, true, function(item) { return item.str; });
         }
 
         res.json(results);

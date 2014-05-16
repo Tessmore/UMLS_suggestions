@@ -55,7 +55,7 @@ function execute_query(table, query) {
 
 exports.install = function install(req, res) {
     execute_query(config.elastic_db.diagnose_table, create_query(config.umls_diagnose));
-    //execute_query(config.elastic_db.medicine_table, create_query(config.umls_medicine));
+    execute_query(config.elastic_db.medicine_table, create_query(config.umls_medicine));
 
     res.json("Done");
 };
