@@ -100,7 +100,7 @@
             return false;
         }
 
-        $.post("/autocomplete", { query: value, type: "medicine" }, function(data) {
+        $.post("/autocomplete", { query: value }, function(data) {
             // Clear results
             autocomplete_holder.empty();
 

@@ -68,52 +68,31 @@ function _insert(mrsty) {
     var type  = mrsty.sty;
 
     var inc   = config.umls_languages.join("','");
-    var query = "SELECT str,lat FROM `mrconso` WHERE cui='" + cui + "' AND lat IN ('" + inc + "') AND ISPREF='Y' AND STT='PF' AND SUPPRESS='N' AND CHAR_LENGTH(str) < 30";
+    var query = "SELECT str,lat FROM `mrconso` WHERE cui='" + cui + "' AND lat IN ('" + inc + "') AND CHAR_LENGTH(str) < 30";
 
     // Since it is async, we need to check for the table to insert
     var table = config.umls_medicine.indexOf(type) > -1 ? config.elastic_db.medicine_table : config.elastic_db.diagnose_table;
-
-    var args =  {
-        index : table,
-        type  : "table",
-        body  : {
-            cui   : cui,
-            type  : type,
-            title : {},
-            keywords : [],
-            lang  : "ENG"
-        }
-    };
 
     umls.query(query, function(err, records) {
         if (err) throw err;
 
         records = filter_conso_records(records);
 
-        while (records.length > 0) {
-            // global for groupBy
-            current = records.shift();
-
-            var input = current.str;
-
-            // Check the word distance for each word
-            var test = _.groupBy(records, group_conso);
-
-            if (test['true']) {
-                input = [input].concat(_.pluck(test['true'], 'str'));
-            }
-
-            if (test['false'] && test['false'].length > 0) {
-                records = test['false'];
-            }
-
-            args.body.title = {
-                input  : input,
-                output : [current.str, cui].join(' | ')
+        for (var i in records) {
+            var args =  {
+                index : table,
+                type  : "table",
+                body  : {
+                    cui   : cui,
+                    type  : type,
+                    title : {
+                        input  : records[i].str,
+                        output : [records[i].str, cui].join(' | ')
+                    },
+                    keywords : records[i].str.split(' '),
+                    lang     : records[i].lat
+                }
             };
-
-            args.body.lang = current.lat;
-            args.body.keywords = current.str.split(' ');
 
             elastic.create(args, function(err, es_res) {
                 if (err)
@@ -125,9 +104,7 @@ function _insert(mrsty) {
 
 // Select filtered, normalized and unique entries
 function filter_conso_records(records) {
-    records = records
-                .filter(filter_conso)
-                .map(normalize_conso);
+    records = records.map(normalize_conso);
 
     return _.uniq(records, false, pluck_conso);
 }
@@ -146,7 +123,7 @@ function group_conso(input) {
     var length_diff = length_difference(current.str, input.str);
 
     if (same_prefix && length_diff < 4)
-        return ld.computeDistance(current.str, input.str) < 5;
+        return ld.computeDistance(current.str, input.str) < 4;
 
     return false;
 }
@@ -157,7 +134,7 @@ function pluck_conso(input) {
 }
 
 function filter_length(input) {
-    return input.length > 3
+    return input.length > 2;
 }
 
 function keyword_reduce(list, item) {
@@ -166,7 +143,7 @@ function keyword_reduce(list, item) {
 
 // Removes entries that have [Disease/finding] etc.
 function filter_conso(input) {
-    return input.str.length > 5       && // Entries should be long enough
+    return input.str.length > 3       && // Entries should be long enough
             !/\d/.test(input.str)     && // Have no numbers
            input.str.indexOf('(') < 0 && // Not contain ( ) or []
            input.str.indexOf('[') < 0;

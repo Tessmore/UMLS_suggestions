@@ -8,6 +8,7 @@
     },
 
     "umls_diagnose" : [
+        "Sign or Symptom",
         "Pathologic Function",
         "Disease or Syndrome",
         "Mental or Behavioral Dysfunction",

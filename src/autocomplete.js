@@ -19,7 +19,7 @@ exports.autocomplete = function autocomplete(req, res) {
         "result" : {
             "text" : query,
             "completion" : {
-                "size"  : 100,
+                "size"  : 150,
                 "field" : "title",
                 "fuzzy" : {
                     "min_length"    : 3,
@@ -40,7 +40,7 @@ exports.autocomplete = function autocomplete(req, res) {
             results = _.map(results, convert_output);
 
             results = results.sort(function(a, b){ return a.str.length - b.str.length; });
-            results = _.uniq(results, true, function(item) { return item.cui; });
+            //results = _.uniq(results, true, function(item) { return item.cui; });
             results = _.uniq(results, true, function(item) { return item.str; });
         }
 
