@@ -19,15 +19,15 @@
   "dependencies": {
     "express": "3.x",
     "elasticsearch": "2.1.1",
-    "mysql": "2.1.1",
-    "utf8": "2.0.0",
-    "ejs": "0.8.x",
+    "mysql": "2.15.1",
+    "utf8": "3.0.0",
+    "ejs": "2.5.x",
     "ejs-locals": "1.0.x",
-    "request-json": "0.4.x",
-    "underscore": "1.6.0",
+    "request-json": "0.6.x",
+    "underscore": "1.8.3",
     "diacritics": "*",
     "ld": "*",
-    "async": "~0.8.0"
+    "async": "2.6.0"
   },
   "scripts": {
     "start": "nodemon app.js"
